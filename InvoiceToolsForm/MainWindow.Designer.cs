@@ -36,6 +36,7 @@ namespace InvoiceToolsForm
             this.emailButton = new System.Windows.Forms.Button();
             this.outputTextBox = new System.Windows.Forms.RichTextBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.ClearButton = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -107,11 +108,22 @@ namespace InvoiceToolsForm
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Output:";
             // 
+            // ClearButton
+            // 
+            this.ClearButton.Location = new System.Drawing.Point(713, 445);
+            this.ClearButton.Name = "ClearButton";
+            this.ClearButton.Size = new System.Drawing.Size(75, 23);
+            this.ClearButton.TabIndex = 7;
+            this.ClearButton.Text = "clear";
+            this.ClearButton.UseVisualStyleBackColor = true;
+            this.ClearButton.Click += new System.EventHandler(this.ClearButton_Click);
+            // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.ClientSize = new System.Drawing.Size(800, 508);
+            this.Controls.Add(this.ClearButton);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.emailButton);
             this.Controls.Add(this.pdfPrintButton);
@@ -134,6 +146,7 @@ namespace InvoiceToolsForm
         private System.Windows.Forms.Button emailButton;
         private System.Windows.Forms.RichTextBox outputTextBox;
         private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.Button ClearButton;
     }
 }
 
