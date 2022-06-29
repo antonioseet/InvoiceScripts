@@ -15,6 +15,7 @@ namespace InvoiceToolsForm
     {
         private string selectedPath;
         private string[] files;
+        private List<string> xlsxFiles;
 
         public MainWindow()
         {
@@ -32,21 +33,28 @@ namespace InvoiceToolsForm
             if (result == DialogResult.OK && !string.IsNullOrWhiteSpace(fbd.SelectedPath))
             {
                 // reset print window
-                this.outputTextBox.Text = string.Empty;
+                clearOutput();
 
                 this.selectedPath = fbd.SelectedPath;
                 this.files = Directory.GetFiles(this.selectedPath);
-                print("Files found: " + this.files.Length.ToString());
                 print("Directory changed to: " + this.selectedPath);
 
-                // Print each file in the directory. TODO: May not be needed later.
-                int count = 1;
-                foreach(string file in this.files){
-                    string[] fileNameDir = file.Split('\\');
-                    print(count + ". " + fileNameDir[fileNameDir.Length-1]);
-                    count++;
+                this.xlsxFiles = new List<string>();
+                foreach(string fileName in this.files){
+
+                    int indexStart = fileName.Length - ".xlsx".Length;
+
+                    if (fileName.Substring(indexStart, ".xlsx".Length).Equals(".xlsx"))
+                    {
+                        print(fileName);
+                        this.xlsxFiles.Add(fileName);
+                    }
                 }
+
+                print(this.xlsxFiles.Count + " Excel files found.");
+                return;
             }
+            print("Error reading directory.");
         }
 
         // Process the xls files to find the invoice number, building address and first name of person that it should send to.
@@ -79,6 +87,11 @@ namespace InvoiceToolsForm
         }
 
         private void ClearButton_Click(object sender, EventArgs e)
+        {
+            clearOutput();
+        }
+
+        private void clearOutput()
         {
             this.outputTextBox.Text = string.Empty;
         }

@@ -94,16 +94,16 @@ namespace InvoiceToolsForm
             // 
             this.outputTextBox.Location = new System.Drawing.Point(6, 19);
             this.outputTextBox.Name = "outputTextBox";
-            this.outputTextBox.Size = new System.Drawing.Size(257, 401);
+            this.outputTextBox.Size = new System.Drawing.Size(528, 401);
             this.outputTextBox.TabIndex = 5;
             this.outputTextBox.Text = "";
             // 
             // groupBox1
             // 
             this.groupBox1.Controls.Add(this.outputTextBox);
-            this.groupBox1.Location = new System.Drawing.Point(519, 12);
+            this.groupBox1.Location = new System.Drawing.Point(248, 12);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(269, 426);
+            this.groupBox1.Size = new System.Drawing.Size(540, 426);
             this.groupBox1.TabIndex = 6;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Output:";
