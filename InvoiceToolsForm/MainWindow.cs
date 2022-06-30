@@ -63,6 +63,8 @@ namespace InvoiceToolsForm
         private void RenameButton_Click(object sender, EventArgs e)
         {
 
+            // Check to see if there is an excel file open.
+            // Prompt user to close all instances before proceeding.
             foreach(string filePath in this.xlsxFilePaths)
             {
                 if (filePath.Contains("~$"))
@@ -74,29 +76,50 @@ namespace InvoiceToolsForm
 
 
             // For each excel file, we want to rename it.
-            foreach(string filePath in this.xlsxFilePaths)
+            int renameCount = 0;
+            foreach(string oldPath in this.xlsxFilePaths)
             {
-                FileInfo fileInfo = new FileInfo(filePath);
+                // Load the excel file worksheet. (invoice)
+                FileInfo fileInfo = new FileInfo(oldPath);
                 ExcelPackage pack = new ExcelPackage(fileInfo);
                 ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
-
                 ExcelWorksheet worksheet = pack.Workbook.Worksheets.FirstOrDefault();
 
+                // Grab the relevant information from the worksheet.
                 string to = worksheet.Cells[8, 1].Value.ToString();
                 string location = worksheet.Cells[9, 1].Value.ToString();
                 string[] invoiceNumSplit = worksheet.Cells[7, 8].Value.ToString().Split(' ');
                 string invoiceNum = invoiceNumSplit[invoiceNumSplit.Length - 1];
 
-                string newName = "Invoice " + invoiceNum + " - " + to + " - " + location + ".xlsx";
+                // Construct the new invoice name: ' Invoice #### - FirstName LastName - Building.xlsx '
+                string newName = "Invoice " + invoiceNum + " - " + to + ".xlsx";
 
-                print(newName);
+                // Copy the first part of the old path and add the new name to it.
+                string newPath = string.Empty;
+                string[] oldPathSplit = oldPath.Split('\\');
+
+                for (int i = 0; i < oldPathSplit.Length - 1; i++)
+                {
+                    newPath += oldPathSplit[i] + '\\';
+                }
+
+                newPath += newName;
+
+
+                Console.WriteLine(oldPath);
+                Console.WriteLine(newPath);
+
+
 
                 /* Delete the file if exists, else no exception thrown. */
 
-                File.Delete(newFileName); // Delete the existing file if exists
-                File.Move(oldFileName, newFileName); // Rename the oldFileName into newFileName
+                // File.Delete(newFileName); // Delete the existing file if exists
 
+                File.Move(oldPath, newPath); // Rename the oldFileName into newFileName
+                renameCount++;
             }
+
+            print("Files renamed: " + renameCount);
         }
 
         private void UpdateRecordButton_Click(object sender, EventArgs e)
