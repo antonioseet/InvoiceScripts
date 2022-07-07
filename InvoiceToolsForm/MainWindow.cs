@@ -1,9 +1,11 @@
-﻿using OfficeOpenXml;
+﻿using Aspose.Cells;
+using OfficeOpenXml;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Drawing.Printing;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -14,9 +16,17 @@ namespace InvoiceToolsForm
 {
     public partial class MainWindow : Form
     {
+        // Path for the last folder chosen.
         private string selectedPath;
-        private string[] files;
-        private List<string> xlsxFilePaths;
+
+        // List of filepaths containing all files after a directory has been chosen, or if files have been renamed.
+        private string[] allFilesInDirectory;
+
+        // List of all OLD file paths.
+        private List<string> oldFilePaths = new List<string>();
+
+        // List of renamed file paths.
+        private List<string> newFilePaths = new List<string>();
 
         public MainWindow()
         {
@@ -26,6 +36,9 @@ namespace InvoiceToolsForm
         // Choose a working directory
         private void DirectoryButton_Click(object sender, EventArgs e)
         {
+            this.oldFilePaths.Clear();
+            this.newFilePaths.Clear();
+
             this.selectedPath = string.Empty;
             FolderBrowserDialog fbd = new FolderBrowserDialog();
             DialogResult result = fbd.ShowDialog();
@@ -37,22 +50,22 @@ namespace InvoiceToolsForm
                 clearOutput();
 
                 this.selectedPath = fbd.SelectedPath;
-                this.files = Directory.GetFiles(this.selectedPath);
+                this.allFilesInDirectory = Directory.GetFiles(this.selectedPath);
                 print("Directory changed to: " + this.selectedPath);
 
-                this.xlsxFilePaths = new List<string>();
-                foreach(string filePath in this.files){
+                foreach(string filePath in this.allFilesInDirectory){
 
                     int indexStart = filePath.Length - ".xlsx".Length;
 
                     if (filePath.Substring(indexStart, ".xlsx".Length).Equals(".xlsx"))
                     {
                         print(filePath);
-                        this.xlsxFilePaths.Add(filePath);
+                        this.oldFilePaths.Add(filePath);
+                        this.newFilePaths.Add(filePath);
                     }
                 }
 
-                print(this.xlsxFilePaths.Count + " Excel files found.");
+                print(this.oldFilePaths.Count + " Excel files found.");
                 return;
             }
             print("Error reading directory.");
@@ -65,7 +78,7 @@ namespace InvoiceToolsForm
 
             // Check to see if there is an excel file open.
             // Prompt user to close all instances before proceeding.
-            foreach(string filePath in this.xlsxFilePaths)
+            foreach(string filePath in this.oldFilePaths)
             {
                 if (filePath.Contains("~$"))
                 {
@@ -74,10 +87,9 @@ namespace InvoiceToolsForm
                 }
             }
 
-
             // For each excel file, we want to rename it.
             int renameCount = 0;
-            foreach(string oldPath in this.xlsxFilePaths)
+            foreach(string oldPath in this.oldFilePaths)
             {
                 // Load the excel file worksheet. (invoice)
                 FileInfo fileInfo = new FileInfo(oldPath);
@@ -105,21 +117,17 @@ namespace InvoiceToolsForm
 
                 newPath += newName;
 
+                newFilePaths.Add(newPath);
 
-                Console.WriteLine(oldPath);
-                Console.WriteLine(newPath);
-
-
-
-                /* Delete the file if exists, else no exception thrown. */
-
-                // File.Delete(newFileName); // Delete the existing file if exists
-
-                File.Move(oldPath, newPath); // Rename the oldFileName into newFileName
+                // Rename the old file path with the new filepath.
+                File.Move(oldPath, newPath);
                 renameCount++;
             }
 
+            // clean up after the files have been renamed
+            this.oldFilePaths.Clear();
             print("Files renamed: " + renameCount);
+            Console.WriteLine("Number of files in the member variable: " + this.newFilePaths.Count);
         }
 
         private void UpdateRecordButton_Click(object sender, EventArgs e)
@@ -129,7 +137,14 @@ namespace InvoiceToolsForm
 
         private void PdfPrintButton_Click(object sender, EventArgs e)
         {
+            foreach(string path in newFilePaths)
+            {
+                Workbook workbook = new Workbook(path);
 
+                string pdfFilename = path.TrimEnd(new char[] { 'x', 'l', 's', 'x' }) + "pdf";
+
+                workbook.Save(pdfFilename, SaveFormat.Pdf);
+            }
         }
 
         private void EmailButton_Click(object sender, EventArgs e)
