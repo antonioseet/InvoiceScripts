@@ -1,5 +1,5 @@
-﻿using Aspose.Cells;
-using OfficeOpenXml;
+﻿using OfficeOpenXml;
+using Spire.Xls;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -28,6 +28,9 @@ namespace InvoiceToolsForm
         // List of renamed file paths.
         private List<string> newFilePaths = new List<string>();
 
+        // number of files printed.
+        private int printCount = 0;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -41,6 +44,9 @@ namespace InvoiceToolsForm
 
             this.selectedPath = string.Empty;
             FolderBrowserDialog fbd = new FolderBrowserDialog();
+
+            fbd.SelectedPath = "C:\\Users\\aabar\\OneDrive\\GC Documents\\Invoices\\2021-02";
+
             DialogResult result = fbd.ShowDialog();
 
             // Report the number of files found in directory.
@@ -59,13 +65,13 @@ namespace InvoiceToolsForm
 
                     if (filePath.Substring(indexStart, ".xlsx".Length).Equals(".xlsx"))
                     {
-                        print(filePath);
                         this.oldFilePaths.Add(filePath);
                         this.newFilePaths.Add(filePath);
                     }
                 }
 
                 print(this.oldFilePaths.Count + " Excel files found.");
+                printStatus();
                 return;
             }
             print("Error reading directory.");
@@ -75,6 +81,8 @@ namespace InvoiceToolsForm
         // Afterwards, close file if needed and rename it given the found attributes.
         private void RenameButton_Click(object sender, EventArgs e)
         {
+            // if we are trying to rename, these old filenames need to be removed to avoid trying to print them later.
+            this.newFilePaths.Clear();
 
             // Check to see if there is an excel file open.
             // Prompt user to close all instances before proceeding.
@@ -104,7 +112,7 @@ namespace InvoiceToolsForm
                 string invoiceNum = invoiceNumSplit[invoiceNumSplit.Length - 1];
 
                 // Construct the new invoice name: ' Invoice #### - FirstName LastName - Building.xlsx '
-                string newName = "Invoice " + invoiceNum + " - " + to + ".xlsx";
+                string newName = "" + invoiceNum + " - " + to + ".xlsx";
 
                 // Copy the first part of the old path and add the new name to it.
                 string newPath = string.Empty;
@@ -127,7 +135,7 @@ namespace InvoiceToolsForm
             // clean up after the files have been renamed
             this.oldFilePaths.Clear();
             print("Files renamed: " + renameCount);
-            Console.WriteLine("Number of files in the member variable: " + this.newFilePaths.Count);
+            printStatus();
         }
 
         private void UpdateRecordButton_Click(object sender, EventArgs e)
@@ -139,12 +147,15 @@ namespace InvoiceToolsForm
         {
             foreach(string path in newFilePaths)
             {
-                Workbook workbook = new Workbook(path);
+                Workbook workbook = new Workbook();
+                workbook.LoadFromFile(path);
 
                 string pdfFilename = path.TrimEnd(new char[] { 'x', 'l', 's', 'x' }) + "pdf";
 
-                workbook.Save(pdfFilename, SaveFormat.Pdf);
+                workbook.SaveToFile(pdfFilename, Spire.Xls.FileFormat.PDF);
+                printCount++;
             }
+            printStatus();
         }
 
         private void EmailButton_Click(object sender, EventArgs e)
@@ -168,5 +179,17 @@ namespace InvoiceToolsForm
         {
             this.outputTextBox.Text = string.Empty;
         }
+
+        private void printStatus()
+        {
+            print("");
+            print("New Filepaths | Total: " + this.newFilePaths.Count + " | Total Printed: " + this.printCount); ;
+            foreach (string path in this.newFilePaths)
+            {
+                print(" " + path);
+            }
+            print("");
+        }
+
     }
 }
