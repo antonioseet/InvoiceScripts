@@ -31,6 +31,9 @@ namespace InvoiceToolsForm
         // number of files printed.
         private int printCount = 0;
 
+        // Instance of folder dialog to save filepath
+        FolderBrowserDialog fbd;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -43,56 +46,79 @@ namespace InvoiceToolsForm
             this.newFilePaths.Clear();
 
             this.selectedPath = string.Empty;
-            FolderBrowserDialog fbd = new FolderBrowserDialog();
+            this.fbd = new FolderBrowserDialog();
 
-            fbd.SelectedPath = "C:\\Users\\aabar\\OneDrive\\GC Documents\\Invoices\\2021-02";
+            this.fbd.SelectedPath = "C:\\Users\\aabar\\OneDrive\\GC Documents\\Invoices\\2021-02";
 
             DialogResult result = fbd.ShowDialog();
 
             // Report the number of files found in directory.
-            if (result == DialogResult.OK && !string.IsNullOrWhiteSpace(fbd.SelectedPath))
+            if (result == DialogResult.OK && !string.IsNullOrWhiteSpace(this.fbd.SelectedPath))
             {
-                // reset print window
-                clearOutput();
-
-                this.selectedPath = fbd.SelectedPath;
-                this.allFilesInDirectory = Directory.GetFiles(this.selectedPath);
-                print("Directory changed to: " + this.selectedPath);
-
-                foreach(string filePath in this.allFilesInDirectory){
-
-                    int indexStart = filePath.Length - ".xlsx".Length;
-
-                    if (filePath.Substring(indexStart, ".xlsx".Length).Equals(".xlsx"))
-                    {
-                        this.oldFilePaths.Add(filePath);
-                        this.newFilePaths.Add(filePath);
-                    }
-                }
-
-                print(this.oldFilePaths.Count + " Excel files found.");
-                printStatus();
+                updateWindowWithFilenames(true);
                 return;
             }
             print("Error reading directory.");
+        }
+
+        public void updateWindowWithFilenames(bool updateNewFilePaths)
+        {
+            // reset print window
+            clearOutput();
+
+            this.selectedPath = this.fbd.SelectedPath;
+            this.allFilesInDirectory = Directory.GetFiles(this.selectedPath);
+            print("Directory set to: " + this.selectedPath);
+
+            foreach (string filePath in this.allFilesInDirectory)
+            {
+
+                int indexStart = filePath.Length - ".xlsx".Length;
+
+                if (filePath.Substring(indexStart, ".xlsx".Length).Equals(".xlsx"))
+                {
+                    this.oldFilePaths.Add(filePath);
+
+                    if (updateNewFilePaths)
+                        this.newFilePaths.Add(filePath);
+                }
+            }
+
+            print(this.oldFilePaths.Count + " Excel files found.");
+            printStatus();
+        }
+
+        public bool filesAreOpen()
+        {
+            bool openFileFound = false;
+            foreach (string filePath in this.oldFilePaths)
+            {
+                if (filePath.Contains("~$"))
+                {
+                    openFileFound = true;
+                    break;
+                }
+            }
+            return openFileFound;
         }
 
         // Process the xls files to find the invoice number, building address and first name of person that it should send to.
         // Afterwards, close file if needed and rename it given the found attributes.
         private void RenameButton_Click(object sender, EventArgs e)
         {
-            // if we are trying to rename, these old filenames need to be removed to avoid trying to print them later.
+            // If we are trying to rename, these old filenames need to be removed to avoid trying to print them later.
             this.newFilePaths.Clear();
+            this.oldFilePaths.Clear();
 
             // Check to see if there is an excel file open.
             // Prompt user to close all instances before proceeding.
-            foreach(string filePath in this.oldFilePaths)
+
+            updateWindowWithFilenames(false);
+
+            if (filesAreOpen())
             {
-                if (filePath.Contains("~$"))
-                {
-                    print("Close ALL EXCEL FILES");
-                    return;
-                }
+                print("CLOSE ALL EXCEL FILES AND TRY AGAIN.");
+                return;
             }
 
             // For each excel file, we want to rename it.
