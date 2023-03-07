@@ -1,4 +1,5 @@
 ﻿using OfficeOpenXml;
+using Spire.Pdf.Exporting.XPS.Schema;
 using Spire.Xls;
 using System;
 using System.Collections.Generic;
@@ -11,6 +12,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Windows.Media.TextFormatting;
 
 namespace InvoiceToolsForm
 {
@@ -112,7 +114,6 @@ namespace InvoiceToolsForm
 
             // Check to see if there is an excel file open.
             // Prompt user to close all instances before proceeding.
-
             updateWindowWithFilenames(false);
 
             if (filesAreOpen())
@@ -134,11 +135,12 @@ namespace InvoiceToolsForm
                 // Grab the relevant information from the worksheet.
                 string to = worksheet.Cells[8, 1].Value.ToString();
                 string location = worksheet.Cells[9, 1].Value.ToString();
+
                 string[] invoiceNumSplit = worksheet.Cells[7, 8].Value.ToString().Split(' ');
                 string invoiceNum = invoiceNumSplit[invoiceNumSplit.Length - 1];
 
                 // Construct the new invoice name: ' Invoice #### - FirstName LastName - Building.xlsx '
-                string newName = "" + invoiceNum + " - " + to + ".xlsx";
+                string newName = "" + invoiceNum + " - " + to +" - "+ location +".xlsx";
 
                 // Copy the first part of the old path and add the new name to it.
                 string newPath = string.Empty;
@@ -166,7 +168,6 @@ namespace InvoiceToolsForm
 
         private void UpdateRecordButton_Click(object sender, EventArgs e)
         {
-
         }
 
         private void PdfPrintButton_Click(object sender, EventArgs e)
