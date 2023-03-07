@@ -37,6 +37,7 @@ namespace InvoiceToolsForm
             this.outputTextBox = new System.Windows.Forms.RichTextBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.ClearButton = new System.Windows.Forms.Button();
+            this.renameCheckbox = new System.Windows.Forms.CheckBox();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -52,6 +53,7 @@ namespace InvoiceToolsForm
             // 
             // renameButton
             // 
+            this.renameButton.Enabled = false;
             this.renameButton.Location = new System.Drawing.Point(12, 95);
             this.renameButton.Name = "renameButton";
             this.renameButton.Size = new System.Drawing.Size(204, 77);
@@ -62,6 +64,7 @@ namespace InvoiceToolsForm
             // 
             // updateRecordButton
             // 
+            this.updateRecordButton.Enabled = false;
             this.updateRecordButton.Location = new System.Drawing.Point(12, 178);
             this.updateRecordButton.Name = "updateRecordButton";
             this.updateRecordButton.Size = new System.Drawing.Size(204, 77);
@@ -72,6 +75,7 @@ namespace InvoiceToolsForm
             // 
             // pdfPrintButton
             // 
+            this.pdfPrintButton.Enabled = false;
             this.pdfPrintButton.Location = new System.Drawing.Point(12, 261);
             this.pdfPrintButton.Name = "pdfPrintButton";
             this.pdfPrintButton.Size = new System.Drawing.Size(204, 77);
@@ -82,6 +86,7 @@ namespace InvoiceToolsForm
             // 
             // emailButton
             // 
+            this.emailButton.Enabled = false;
             this.emailButton.Location = new System.Drawing.Point(12, 344);
             this.emailButton.Name = "emailButton";
             this.emailButton.Size = new System.Drawing.Size(204, 77);
@@ -118,11 +123,24 @@ namespace InvoiceToolsForm
             this.ClearButton.UseVisualStyleBackColor = true;
             this.ClearButton.Click += new System.EventHandler(this.ClearButton_Click);
             // 
+            // renameCheckbox
+            // 
+            this.renameCheckbox.AutoSize = true;
+            this.renameCheckbox.Checked = true;
+            this.renameCheckbox.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.renameCheckbox.Location = new System.Drawing.Point(12, 479);
+            this.renameCheckbox.Name = "renameCheckbox";
+            this.renameCheckbox.Size = new System.Drawing.Size(284, 17);
+            this.renameCheckbox.TabIndex = 8;
+            this.renameCheckbox.Text = "\"# - name - location.xlsx\" (otherwise \"# - location.xlsx\")";
+            this.renameCheckbox.UseVisualStyleBackColor = true;
+            // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 508);
+            this.Controls.Add(this.renameCheckbox);
             this.Controls.Add(this.ClearButton);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.emailButton);
@@ -134,6 +152,7 @@ namespace InvoiceToolsForm
             this.Text = "Invoice Tools";
             this.groupBox1.ResumeLayout(false);
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -147,6 +166,7 @@ namespace InvoiceToolsForm
         private System.Windows.Forms.RichTextBox outputTextBox;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.Button ClearButton;
+        private System.Windows.Forms.CheckBox renameCheckbox;
     }
 }
 

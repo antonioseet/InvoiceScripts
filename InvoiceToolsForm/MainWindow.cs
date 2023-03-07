@@ -13,6 +13,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Media.TextFormatting;
+using System.Xml.Linq;
 
 namespace InvoiceToolsForm
 {
@@ -58,9 +59,19 @@ namespace InvoiceToolsForm
             if (result == DialogResult.OK && !string.IsNullOrWhiteSpace(this.fbd.SelectedPath))
             {
                 updateWindowWithFilenames(true);
+                enableButtons();
+
                 return;
             }
             print("Error reading directory.");
+        }
+
+        private void enableButtons()
+        {
+            renameButton.Enabled = true;
+            //updateRecordButton.Enabled = true;
+            pdfPrintButton.Enabled = true;
+            //emailButton.Enabled = true;
         }
 
         public void updateWindowWithFilenames(bool updateNewFilePaths)
@@ -133,14 +144,14 @@ namespace InvoiceToolsForm
                 ExcelWorksheet worksheet = pack.Workbook.Worksheets.FirstOrDefault();
 
                 // Grab the relevant information from the worksheet.
-                string to = worksheet.Cells[8, 1].Value.ToString();
+                string toName = worksheet.Cells[8, 1].Value.ToString();
                 string location = worksheet.Cells[9, 1].Value.ToString();
 
                 string[] invoiceNumSplit = worksheet.Cells[7, 8].Value.ToString().Split(' ');
                 string invoiceNum = invoiceNumSplit[invoiceNumSplit.Length - 1];
 
                 // Construct the new invoice name: ' Invoice #### - FirstName LastName - Building.xlsx '
-                string newName = "" + invoiceNum + " - " + to +" - "+ location +".xlsx";
+                string newName = getRename(invoiceNum, toName, location);
 
                 // Copy the first part of the old path and add the new name to it.
                 string newPath = string.Empty;
@@ -172,6 +183,8 @@ namespace InvoiceToolsForm
 
         private void PdfPrintButton_Click(object sender, EventArgs e)
         {
+            // TODO: To make things a little easier, try to delete all existing pdf files. 
+
             foreach(string path in newFilePaths)
             {
                 Workbook workbook = new Workbook();
@@ -216,6 +229,21 @@ namespace InvoiceToolsForm
                 print(" " + path);
             }
             print("");
+        }
+
+        /// <summary>
+        /// Based on the checkbox at the bottom left corner, renames a document based on the two templates.
+        /// </summary>
+        /// <param name="num">Invoice Number</param>
+        /// <param name="name">Invoicee</param>
+        /// <param name="location">Job Site</param>
+        /// <returns></returns>
+        private string getRename(string num, string name, string location)
+        {
+            if (renameCheckbox.Checked)
+                return "" + num + " - " + name + " - " + location + ".xlsx"; ;
+
+            return "" + num + " - " + location + ".xlsx"; ;
         }
 
     }
