@@ -76,31 +76,28 @@ namespace InvoiceToolsForm
 
         public void updateWindowWithFilenames(bool updateNewFilePaths)
         {
-            // reset print window
             clearOutput();
 
-            this.selectedPath = this.fbd.SelectedPath;
-            this.allFilesInDirectory = Directory.GetFiles(this.selectedPath);
-            print("Directory set to: " + this.selectedPath);
+            selectedPath = fbd.SelectedPath;
 
-            foreach (string filePath in this.allFilesInDirectory)
+            // get all excel files in the directory
+            allFilesInDirectory = Directory.GetFiles(selectedPath, "*.xlsx");
+
+            foreach (string filePath in allFilesInDirectory)
             {
+                oldFilePaths.Add(filePath);
 
-                int indexStart = filePath.Length - ".xlsx".Length;
-
-                if (filePath.Substring(indexStart, ".xlsx".Length).Equals(".xlsx"))
-                {
-                    this.oldFilePaths.Add(filePath);
-
-                    if (updateNewFilePaths)
-                        this.newFilePaths.Add(filePath);
-                }
+                if (updateNewFilePaths)
+                    newFilePaths.Add(filePath);
             }
 
-            print(this.oldFilePaths.Count + " Excel files found.");
+            print(oldFilePaths.Count + " Excel files found.");
             printStatus();
         }
 
+        // Checks if files are open by checking if any of the filepaths contain '~$'
+        // This prevents the program from trying to rename files that are open.
+        // TODO: this stopped working for some reason. look into it.
         public bool filesAreOpen()
         {
             bool openFileFound = false;
