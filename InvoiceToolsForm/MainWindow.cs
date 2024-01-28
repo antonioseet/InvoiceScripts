@@ -15,6 +15,23 @@ using System.Windows.Forms;
 using System.Windows.Media.TextFormatting;
 using System.Xml.Linq;
 
+/* List of Ideas:
+ * - Create a folder to store a sample invoice
+ * - Use the sample invoice to create a new invoice in the folder associated with the current date
+ *      for example, if the current date is 12/3/2023, create a folder '2023-12' and copy the sample invoice into it.
+ *      We can create a button for this function for now.
+ *      
+ * - If we try to rename, and the file is a sample file (no changes), then we should not rename it. and we should not print it.
+ * - try to skip over files that have already been printed to PDF. (this may not work because maybe we change the excel sheet after printing it)
+ *      which means that if we skip over it, we will not print the post-print modified files.
+ *      
+ * - When the app starts, instead of having the user choose a directory, auto detect the directory we want to use.
+ *      Usually this is done by checking the date.
+ *      
+ * - Auto populate Invoice Number based on the last invoice number used.
+ */
+
+
 namespace InvoiceToolsForm
 {
     public partial class MainWindow : Form
@@ -51,14 +68,14 @@ namespace InvoiceToolsForm
             this.selectedPath = string.Empty;
             this.fbd = new FolderBrowserDialog();
 
-            this.fbd.SelectedPath = "C:\\Users\\aabar\\OneDrive\\GC Documents\\Invoices\\2021-02";
+            this.fbd.SelectedPath = "C:\\Users\\aabar\\OneDrive\\GC Documents\\Invoices";
 
             DialogResult result = fbd.ShowDialog();
 
             // Report the number of files found in directory.
             if (result == DialogResult.OK && !string.IsNullOrWhiteSpace(this.fbd.SelectedPath))
             {
-                updateWindowWithFilenames(true);
+                updateWindowWithFilenames(true /* updateNewFilePaths */);
                 enableButtons();
 
                 return;
@@ -164,6 +181,7 @@ namespace InvoiceToolsForm
                 newFilePaths.Add(newPath);
 
                 // Rename the old file path with the new filepath.
+                // TODO: Cannot create a file when that file already exists. Need to delete the old file first. OR RENAME THE OLD FILEs FIRST.
                 File.Move(oldPath, newPath);
                 renameCount++;
             }
@@ -181,6 +199,10 @@ namespace InvoiceToolsForm
         private void PdfPrintButton_Click(object sender, EventArgs e)
         {
             // TODO: To make things a little easier, try to delete all existing pdf files. 
+            // TODO: Refresh list of files in directory because they may have changed since the last time we checked.
+            // This causes a crash because we try to print pdf files for excel files that don't exist anymore.
+            // repro: rename files, then delete one, then try to print pdfs.
+            // TODO: Whne continuously pressing this button, the pdf count does not get reset. will continually go up, even if the files are deleted.
 
             foreach(string path in newFilePaths)
             {
