@@ -157,15 +157,34 @@ namespace InvoiceToolsForm
                 ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
                 ExcelWorksheet worksheet = pack.Workbook.Worksheets.FirstOrDefault();
 
-                // Grab the relevant information from the worksheet.
+                // Grab the name and location from the worksheet.
+                // Cell[8,1] = A8
+                // Cell[9,1] = A9
                 string toName = worksheet.Cells[8, 1].Value.ToString();
                 string location = worksheet.Cells[9, 1].Value.ToString();
 
-                string[] invoiceNumSplit = worksheet.Cells[7, 8].Value.ToString().Split(' ');
-                string invoiceNum = invoiceNumSplit[invoiceNumSplit.Length - 1];
+                // TODO: Handle 'Quotes/Estimates'
+                // Estimates will not have invoice number associated with it, causing a break.
+                string newName;
+                string invoiceNumber = "0";
+                string value = worksheet.Cells[1, 7].Value.ToString();
+                bool isInvoice = value == "INVOICE";
 
-                // Construct the new invoice name: ' Invoice #### - FirstName LastName - Building.xlsx '
-                string newName = getRename(invoiceNum, toName, location);
+                if (isInvoice)
+                {
+                    string[] invoiceNumSplit = worksheet.Cells[7, 8].Value.ToString().Split(' ');
+                    invoiceNumber = invoiceNumSplit[invoiceNumSplit.Length - 1];
+                    
+                    // Construct the new invoice name: ' Invoice #### - FirstName LastName - Building.xlsx '
+                    newName = getRename(invoiceNumber, toName, location);
+                }
+                else
+                {
+                    newName = getRename(toName, location);
+                }
+
+
+                
 
                 // Copy the first part of the old path and add the new name to it.
                 string newPath = string.Empty;
@@ -263,6 +282,13 @@ namespace InvoiceToolsForm
                 return "" + num + " - " + name + " - " + location + ".xlsx"; ;
 
             return "" + num + " - " + location + ".xlsx"; ;
+        }
+        private string getRename(string name, string location)
+        {
+            if (renameCheckbox.Checked)
+                return "Quote - " + name + " - " + location + ".xlsx"; ;
+
+            return "Quote - " + location + ".xlsx"; ;
         }
 
     }
